@@ -2,12 +2,13 @@ const express = require("express");
 const { Pool } = require("pg");
 const app = express();
 app.use(express.json());
+
 const port = 3000;
 
-require('dotenv').config();
+require("dotenv").config();
 
 // Define tu API Key
-const apiKey = "4GgYsz5FDfnk";
+const apiKey = process.env.API_KEY || "4GgYsz5FDfnk"; // Puedes definir la API key en el archivo .env
 
 // Crea una función de middleware para verificar la API key
 function verifyApiKey(req, res, next) {
@@ -35,53 +36,56 @@ const pool = new Pool({
 });
 
 app.get("/products", function (req, res) {
-  const listProductsQuery = `SELECT * FROM products`;
+  const listProductsQuery = `SELECT nameProduct, amount, notes, price FROM products`;
 
   pool
     .query(listProductsQuery)
     .then((data) => {
       console.log("List products: ", data.rows);
-      res.status(201).send(data.rows);
-      // No uses pool.end() aquí, ya que cerraría la conexión para siempre
+      res.status(200).send(data.rows);
     })
     .catch((err) => {
       console.error(err);
+      res.status(500).json({ error: "server error your data could not be saved" });
     });
 });
 
 app.get("/products/:id", function (req, res) {
-  const listUsersQuery = `SELECT * FROM products WHERE id = ${req.params.id}`;
+  const listUsersQuery = `SELECT id, nameProduct, amount, notes, price FROM products WHERE id = $1`;
+  const productId = req.params.id;
 
   pool
-    .query(listUsersQuery)
+    .query(listUsersQuery, [productId])
     .then((data) => {
       console.log("List products: ", data.rows);
-      res.status(201).send(data.rows);
-      // No uses pool.end() aquí, ya que cerraría la conexión para siempre
+      if (data.rows.length > 0) {
+        res.status(200).send(data.rows[0]);
+      } else {
+        res.status(404).json({ error: "product not found try again" });
+      }
     })
     .catch((err) => {
       console.error(err);
+      res.status(500).json({ error: "server error your data could not be saved" });
     });
 });
-
 app.post("/products", function (req, res) {
-  const id = req.body.id;
-  const nameProduct = req.body.nameProduct;
-  const amount = req.body.amount;
-  const notes = req.body.notes;
-  const insertar = `INSERT INTO products(id, nameProduct, amount, notes) VALUES(${id}, '${nameProduct}', '${amount}', '${notes}')`;
+  const { nameProduct, amount, notes } = req.body;
+  const insertar = `INSERT INTO products(id, nameProduct, amount, notes, price) VALUES($1, $2, $3, $4) RETURNING *`;
+  const randomPrice = Math.round(Math.random() * 100, 1000);
 
   pool
-    .query(insertar)
-    .then(() => {
-      res.status(201).send("products save");
+    .query(insertar, [nameProduct, amount, notes, randomPrice])
+    .then((data) => {
+      console.log("Product saved: ", data.rows[0]);
+      res.status(201).send(data.rows[0]);
     })
     .catch((err) => {
       console.error(err);
+      res.status(500).json({ error: "server error your data could not be saved" });
     });
-  console.log(req.body);
 });
 
 app.listen(port, function () {
-  console.log(`the products database is initializing`);
+  console.log(`the product database is running ${port}`);
 });

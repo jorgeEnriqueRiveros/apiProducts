@@ -15,7 +15,19 @@ CREATE TABLE IF NOT EXISTS products (
     nameProduct VARCHAR(50),
     amount VARCHAR(50),
     notes TEXT
-);`;
+    );`;
+const addPriceColumnQuery = `ALTER TABLE products
+    ADD COLUMN price NUMERIC;`;
+
+pool.query(addPriceColumnQuery)
+    .then(res => {
+        console.log("Campo 'price' agregado a la tabla 'products'");
+        pool.end();
+    })
+    .catch(err => {
+        console.error(err);
+        pool.end();
+    });
 
 pool.query(createProductsTableQuery)
     .then(res => {
