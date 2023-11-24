@@ -72,7 +72,7 @@ app.get("/products/:id", function (req, res) {
 app.post("/products", function (req, res) {
   const { nameProduct, amount, notes } = req.body;
   const insertar = `INSERT INTO products(id, nameProduct, amount, notes, price) VALUES($1, $2, $3, $4) RETURNING *`;
-  const randomPrice = Math.round(Math.random() * 100, 1000);
+  const randomPrice = Math.round(Math.random() * 10000, 10);
 
   pool
     .query(insertar, [nameProduct, amount, notes, randomPrice])
