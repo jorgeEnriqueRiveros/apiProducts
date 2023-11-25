@@ -69,7 +69,31 @@ app.get("/products", function (req, res) {
         .json({ error: "server error your data could not be saved" });
     });
 });
+app.post("/products", function (req, res) {
+  const { nameProduct, amount, notes, price } = req.body;
 
+  if (!nameProduct || !amount || !price) {
+      return res.status(400).json({ error: "nameProduct, amount, and price are required fields" });
+  }
+
+  const insertProductQuery = `
+      INSERT INTO products (nameProduct, amount, notes, price)
+      VALUES ($1, $2, $3, $4)
+      RETURNING *;`;
+
+  const values = [nameProduct, amount, notes, price];
+
+  pool
+      .query(insertProductQuery, values)
+      .then((data) => {
+          console.log("Product added: ", data.rows[0]);
+          res.status(201).json(data.rows[0]);
+      })
+      .catch((err) => {
+          console.error(err);
+          res.status(500).json({ error: "server error, product could not be added" });
+      });
+});
 app.get("/products/:id", function (req, res) {
   const listUsersQuery = `SELECT id, nameProduct, amount, notes, price FROM products WHERE id = $1`;
   const productId = req.params.id;
@@ -167,23 +191,7 @@ app.put("/products/:id", function (req, res) {
       res.status(500).json({ error: "Server error, could not update product" });
     });
 });
-app.post("/products", function (req, res) {
-  const nameProduct = req.body.nameProduct;
-  const amount= req.body.amount;
-  const price = req.body.price;
-  const notes = req.body.notes;
-  const insertar = `INSERT INTO students(id, name, lastname, notes) VALUES(${nameProduct}, '${amount}', '${price}', '${notes}')`;
-  pool
-    .query(insertar)
-    .then(() => {
-      res.status(201).send("students save");
-    })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).json({ error: "Internal Server Error" });
-    });
-  console.log(req.body);
-});
+
   
 module.exports = app;
 
