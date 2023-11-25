@@ -6,7 +6,7 @@ const pool = new Pool({
     database: 'verceldb',
     password: "lY4UHB8OZotw",
     port: 5432,
-    ssl: {rejectUnauthorized: false},
+    ssl: { rejectUnauthorized: false },
 });
 
 const createProductsTableQuery = `
@@ -14,20 +14,9 @@ CREATE TABLE IF NOT EXISTS products (
     id SERIAL PRIMARY KEY,
     nameProduct VARCHAR(50),
     amount VARCHAR(50),
-    notes TEXT
-    );`;
-const addPriceColumnQuery = `ALTER TABLE products
-    ADD COLUMN price NUMERIC;`;
-
-pool.query(addPriceColumnQuery)
-    .then(res => {
-        console.log("Campo 'price' agregado a la tabla 'products'");
-        pool.end();
-    })
-    .catch(err => {
-        console.error(err);
-        pool.end();
-    });
+    notes TEXT,
+    price FLOAT -- Cambiado de "float" a "FLOAT"
+);`;
 
 pool.query(createProductsTableQuery)
     .then(res => {
@@ -38,3 +27,4 @@ pool.query(createProductsTableQuery)
         console.error(err);
         pool.end();
     });
+
