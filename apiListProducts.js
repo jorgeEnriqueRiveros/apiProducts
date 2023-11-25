@@ -1,11 +1,13 @@
 const express = require("express");
 const { Pool } = require("pg");
+const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
 const app = express();
 app.use(express.json());
 const port = 3000;
 
-const swaggerJsdoc = require("swagger-jsdoc");
-const swaggerUi = require("swagger-ui-express");
+require("dotenv").config();
+
 const options = {
   definition: {
     openapi: "3.0.0",
@@ -21,10 +23,18 @@ const specs = swaggerJsdoc(options);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 app.get("/", (req, res) => {
-  res.send("Hola, mundo!");
+  res.send("!welcome to my page a pleasure kikeriveros where you will find everything about my api!");
 });
+/**
+ * @swagger
+ * /:
+ *   get:
+ *     summary: Thank you for visiting my api we will be uploading new data
+ *     responses:
+ *       200:
+ *         description: we thank you for your attention
+ */
 
-require("dotenv").config();
 // Define tu API Key
 const apiKey = process.env.API_KEY || "4GgYsz5FDfnk"; // Puedes definir la API key en el archivo .env
 
