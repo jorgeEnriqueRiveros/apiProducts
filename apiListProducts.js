@@ -196,3 +196,4 @@ app.post("/products", function (req, res) {
 app.listen(port, () => {
   console.log(`Servidor en http://localhost:${port}`);
 });
+module.exports = app
