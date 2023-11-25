@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS products (
     nameProduct VARCHAR(50),
     amount VARCHAR(50),
     notes TEXT,
-    price FLOAT -- Cambiado de "float" a "FLOAT"
+    price FLOAT
 );`;
 
 pool.query(createProductsTableQuery)

@@ -4,24 +4,24 @@ const app = express();
 app.use(express.json());
 const port = 3000;
 
-const swaggerJsdoc = require('swagger-jsdoc');
-const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
 const options = {
   definition: {
-    openapi: '3.0.0',
+    openapi: "3.0.0",
     info: {
-      title: 'database products',
-      version: '1.0.0',
+      title: "database products",
+      version: "1.0.0",
     },
   },
-  apis: ['apiListProducts.js'],
+  apis: ["apiListProducts.js"],
 };
 
 const specs = swaggerJsdoc(options);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
-app.get('/', (req, res) => {
-  res.send('Hola, mundo!');
+app.get("/", (req, res) => {
+  res.send("Hola, mundo!");
 });
 
 require("dotenv").config();
@@ -56,14 +56,17 @@ const pool = new Pool({
 app.get("/products", function (req, res) {
   const listProductsQuery = `SELECT id, nameProduct, amount, notes, price FROM products`;
 
-  pool.query(listProductsQuery)
+  pool
+    .query(listProductsQuery)
     .then((data) => {
       console.log("List products: ", data.rows);
       res.status(200).send(data.rows);
     })
     .catch((err) => {
       console.error(err);
-      res.status(500).json({ error: "server error your data could not be saved" });
+      res
+        .status(500)
+        .json({ error: "server error your data could not be saved" });
     });
 });
 
@@ -83,7 +86,9 @@ app.get("/products/:id", function (req, res) {
     })
     .catch((err) => {
       console.error(err);
-      res.status(500).json({ error: "server error your data could not be saved" });
+      res
+        .status(500)
+        .json({ error: "server error your data could not be saved" });
     });
 });
 app.put("/products/:id", function (req, res) {
@@ -91,7 +96,8 @@ app.put("/products/:id", function (req, res) {
   const updatePrice = `UPDATE products SET price = $1 WHERE id = $2 RETURNING *`;
   const newRandomPrice = Math.round(Math.random() * 10000, 10);
 
-  pool.query(updatePrice, [newRandomPrice, id])
+  pool
+    .query(updatePrice, [newRandomPrice, id])
     .then((data) => {
       if (data.rows.length === 0) {
         return res.status(404).json({ error: "Product not found" });
@@ -101,7 +107,9 @@ app.put("/products/:id", function (req, res) {
     })
     .catch((err) => {
       console.error(err);
-      res.status(500).json({ error: "Server error, could not update product price" });
+      res
+        .status(500)
+        .json({ error: "Server error, could not update product price" });
     });
 });
 app.delete("/products/:id", function (req, res) {
@@ -120,7 +128,7 @@ app.delete("/products/:id", function (req, res) {
 });
 
 app.put("/products/:id", function (req, res) {
-  const {nameProduct, amount, notes } = req.body;
+  const { nameProduct, amount, notes } = req.body;
   const insertar = `INSERT INTO products(nameProduct, amount, notes, price) VALUES($1, $2, $3, $4) RETURNING *`;
   const randomPrice = Math.round(Math.random() * 10000, 10);
 
@@ -132,7 +140,9 @@ app.put("/products/:id", function (req, res) {
     })
     .catch((err) => {
       console.error(err);
-      res.status(500).json({ error: "server error your data could not be saved" });
+      res
+        .status(500)
+        .json({ error: "server error your data could not be saved" });
     });
 });
 
@@ -143,7 +153,8 @@ app.put("/products/:id", function (req, res) {
   // Assuming your table has columns: nameProduct, amount, notes, price
   const updateProduct = `UPDATE products SET nameProduct = $1, amount = $2, notes = $3 WHERE id = $4 RETURNING *`;
 
-  pool.query(updateProduct, [nameProduct, amount, notes, id])
+  pool
+    .query(updateProduct, [nameProduct, amount, notes, id])
     .then((data) => {
       if (data.rows.length === 0) {
         return res.status(404).json({ error: "Product not found" });
@@ -157,41 +168,24 @@ app.put("/products/:id", function (req, res) {
     });
 });
 app.post("/products", function (req, res) {
-  const { id, nameProduct, amount, notes } = req.body;
-  const randomPrice = Math.round(Math.random() * 10000, 10);
-
-  if (!id) {
-    // If no ID is provided, treat it as a new product creation
-    const insertNewProduct = `INSERT INTO products(nameProduct, amount, notes, price) VALUES($1, $2, $3, $4) RETURNING *`;
-
-    pool.query(insertNewProduct, [nameProduct, amount, notes, randomPrice])
-      .then((data) => {
-        console.log("New product saved: ", data.rows[0]);
-        res.status(201).send(data.rows[0]);
-      })
-      .catch((err) => {
-        console.error(err);
-        res.status(500).json({ error: "Server error, your data could not be saved" });
-      });
-  } else {
-    // If ID is provided, treat it as an update to an existing product's name
-    const updateProductName = `UPDATE products SET nameProduct = $1 WHERE id = $2 RETURNING *`;
-
-    pool.query(updateProductName, [nameProduct, id])
-      .then((data) => {
-        if (data.rows.length === 0) {
-          return res.status(404).json({ error: "Product not found" });
-        }
-        console.log("Product name updated: ", data.rows[0]);
-        res.status(200).send(data.rows[0]);
-      })
-      .catch((err) => {
-        console.error(err);
-        res.status(500).json({ error: "Server error, could not update product name" });
-      });
-  }
+  const nameProduct = req.body.nameProduct;
+  const amount= req.body.amount;
+  const price = req.body.price;
+  const notes = req.body.notes;
+  const insertar = `INSERT INTO students(id, name, lastname, notes) VALUES(${nameProduct}, '${amount}', '${price}', '${notes}')`;
+  pool
+    .query(insertar)
+    .then(() => {
+      res.status(201).send("students save");
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).json({ error: "Internal Server Error" });
+    });
+  console.log(req.body);
 });
-module.exports = app
+  
+module.exports = app;
 
 app.listen(port, () => {
   console.log(`Servidor en http://localhost:${port}`);
