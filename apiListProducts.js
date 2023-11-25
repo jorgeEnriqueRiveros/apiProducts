@@ -191,9 +191,8 @@ app.post("/products", function (req, res) {
       });
   }
 });
-
+module.exports = app
 
 app.listen(port, () => {
   console.log(`Servidor en http://localhost:${port}`);
 });
-module.exports = app
