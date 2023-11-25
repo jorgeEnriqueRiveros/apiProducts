@@ -36,7 +36,7 @@ const pool = new Pool({
 });
 
 app.get("/products", function (req, res) {
-  const listProductsQuery = `SELECT nameProduct, amount, notes, price FROM products`;
+  const listProductsQuery = `SELECT id, nameProduct, amount, notes, price FROM products`;
 
   pool
     .query(listProductsQuery)
@@ -70,8 +70,8 @@ app.get("/products/:id", function (req, res) {
     });
 });
 app.post("/products", function (req, res) {
-  const { nameProduct, amount, notes } = req.body;
-  const insertar = `INSERT INTO products(id, nameProduct, amount, notes, price) VALUES($1, $2, $3, $4) RETURNING *`;
+  const {nameProduct, amount, notes } = req.body;
+  const insertar = `INSERT INTO products(nameProduct, amount, notes, price) VALUES($1, $2, $3, $4) RETURNING *`;
   const randomPrice = Math.round(Math.random() * 10000, 10);
 
   pool
@@ -85,7 +85,37 @@ app.post("/products", function (req, res) {
       res.status(500).json({ error: "server error your data could not be saved" });
     });
 });
+app.delete("/products/:id", function (req, res) {
+  const eliminar = `DELETE FROM products WHERE id=${req.params.id}`;
+  console.log(eliminar);
+  pool
+    .query(eliminar)
+    .then(() => {
+      res.status(204).send("Products Deleted");
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).json({ error: "Internal Server Error" });
+    });
+  console.log(req.body);
+});
 
+app.put("/products/id", function (req, res) {
+  const {nameProduct, amount, notes } = req.body;
+  const insertar = `INSERT INTO products(nameProduct, amount, notes, price) VALUES($1, $2, $3, $4) RETURNING *`;
+  const randomPrice = Math.round(Math.random() * 10000, 10);
+
+  pool
+    .query(insertar, [nameProduct, amount, notes, randomPrice])
+    .then((data) => {
+      console.log("Product saved: ", data.rows[0]);
+      res.status(201).send(data.rows[0]);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).json({ error: "server error your data could not be saved" });
+    });
+});
 app.listen(port, function () {
   console.log(`the product database is running ${port}`);
 });
